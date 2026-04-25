@@ -508,6 +508,53 @@ const CertificateModal = ({ cert, onClose }) => {
 };
 
 // ── Certificates ──────────────────────────────────────────────────────────────
+// ── Carousel ──────────────────────────────────────────────────────────────────
+const Carousel = ({ children, cardWidth = 300 }) => {
+  const trackRef = useRef(null);
+  const [idx, setIdx] = useState(0);
+  const count = React.Children.count(children);
+  const visible = Math.max(1, Math.floor((typeof window !== 'undefined' ? window.innerWidth * 0.85 : 900) / (cardWidth + 20)));
+  const max = Math.max(0, count - visible);
+  const prev = () => setIdx(i => Math.max(0, i - 1));
+  const next = () => setIdx(i => Math.min(max, i + 1));
+  useEffect(() => {
+    if (trackRef.current) {
+      trackRef.current.style.transform = `translateX(-${idx * (cardWidth + 20)}px)`;
+    }
+  }, [idx, cardWidth]);
+  return (
+    <div style={{ position: 'relative' }}>
+      {/* Arrows */}
+      {idx > 0 && (
+        <button onClick={prev} style={{ position:'absolute',left:-20,top:'50%',transform:'translateY(-50%)',zIndex:10,width:40,height:40,borderRadius:'50%',background:'#0c1020',border:`1px solid rgba(255,255,255,0.12)`,color:'#e2eaf4',fontSize:18,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',boxShadow:'0 4px 20px rgba(0,0,0,0.4)',transition:'all 0.2s' }}
+          onMouseEnter={e=>{e.currentTarget.style.borderColor=`${A}88`;e.currentTarget.style.color=A;}}
+          onMouseLeave={e=>{e.currentTarget.style.borderColor='rgba(255,255,255,0.12)';e.currentTarget.style.color='#e2eaf4';}}>‹</button>
+      )}
+      {idx < max && (
+        <button onClick={next} style={{ position:'absolute',right:-20,top:'50%',transform:'translateY(-50%)',zIndex:10,width:40,height:40,borderRadius:'50%',background:'#0c1020',border:`1px solid rgba(255,255,255,0.12)`,color:'#e2eaf4',fontSize:18,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',boxShadow:'0 4px 20px rgba(0,0,0,0.4)',transition:'all 0.2s' }}
+          onMouseEnter={e=>{e.currentTarget.style.borderColor=`${A}88`;e.currentTarget.style.color=A;}}
+          onMouseLeave={e=>{e.currentTarget.style.borderColor='rgba(255,255,255,0.12)';e.currentTarget.style.color='#e2eaf4';}}>›</button>
+      )}
+      {/* Track */}
+      <div style={{ overflow:'hidden', padding:'8px 4px 16px' }}>
+        <div ref={trackRef} style={{ display:'flex', gap:20, transition:'transform 0.4s cubic-bezier(0.25,0.46,0.45,0.94)', willChange:'transform' }}>
+          {React.Children.map(children, child => (
+            <div style={{ minWidth:cardWidth, maxWidth:cardWidth, flexShrink:0 }}>{child}</div>
+          ))}
+        </div>
+      </div>
+      {/* Dots */}
+      {count > visible && (
+        <div style={{ display:'flex', justifyContent:'center', gap:6, marginTop:4 }}>
+          {Array.from({ length: max + 1 }).map((_, i) => (
+            <div key={i} onClick={() => setIdx(i)} style={{ width: i===idx ? 20 : 6, height:6, borderRadius:3, background: i===idx ? A : 'rgba(255,255,255,0.15)', cursor:'pointer', transition:'all 0.3s' }} />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
 const CertificatesSection = ({ data }) => {
   const [ref, inView] = useInView();
   const isMobile = useWindowWidth() < 768;
@@ -517,7 +564,42 @@ const CertificatesSection = ({ data }) => {
     <div ref={ref} id="certificates">
       <div style={sectionStyle(inView, isMobile)}>
         <SectionHeader label="certificaciones" title="Certificados & Diplomados" />
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(280px,1fr))', gap: 20 }}>
+        <Carousel cardWidth={280}>
+          {data.map((cert) => {
+            const bc = badgeColors[cert.badge] || A;
+            const pdfSrc = cert.pdfUrl || cert.pdfData || "";
+            return (
+              <div key={cert.id}
+              style={{ background: '#0c1020', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 12, overflow: 'hidden', transition: 'all 0.25s', cursor: 'pointer', display: 'flex', flexDirection: 'column', height: '100%' }}
+              onMouseEnter={(e) => {e.currentTarget.style.borderColor = `${bc}55`;e.currentTarget.style.transform = 'translateY(-4px)';e.currentTarget.style.boxShadow = `0 12px 36px ${bc}1a`;}}
+              onMouseLeave={(e) => {e.currentTarget.style.borderColor = 'rgba(255,255,255,0.06)';e.currentTarget.style.transform = 'none';e.currentTarget.style.boxShadow = 'none';}}
+              onClick={() => setSelected(cert)}>
+                {pdfSrc ?
+                <div style={{ height: 160, overflow: 'hidden', position: 'relative', background: '#070c14', flexShrink: 0 }}>
+                    <PDFThumb pdfData={pdfSrc} thumbPage={cert.pdfThumbPage || 0} />
+                    <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom,transparent 55%,#0c1020)' }} />
+                    <div style={{ position: 'absolute', top: 10, right: 10, background: `${bc}22`, border: `1px solid ${bc}55`, borderRadius: 5, padding: '3px 8px', fontFamily: 'JetBrains Mono,monospace', fontSize: 10, fontWeight: 700, color: bc, backdropFilter: 'blur(4px)' }}>{cert.badge}</div>
+                  </div> :
+                <div style={{ height: 8, background: `linear-gradient(90deg,${bc},${bc}44)`, flexShrink: 0 }} />
+                }
+                <div style={{ padding: 20, display: 'flex', gap: 14, alignItems: 'flex-start', flex: 1 }}>
+                  {!pdfSrc &&
+                  <div style={{ width: 46, height: 46, borderRadius: 10, background: `${bc}18`, border: `1px solid ${bc}44`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontFamily: 'JetBrains Mono,monospace', fontSize: 12, fontWeight: 700, color: bc, boxShadow: `0 0 14px ${bc}22` }}>
+                      {cert.badge}
+                    </div>
+                  }
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontFamily: 'Space Grotesk,sans-serif', fontWeight: 600, fontSize: 15, color: '#e2eaf4', lineHeight: 1.3, marginBottom: 5 }}>{cert.title}</div>
+                    <div style={{ fontFamily: 'Inter,sans-serif', fontSize: 13, color: '#5a6a80', marginBottom: 6 }}>{cert.issuer}</div>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <div style={{ fontFamily: 'JetBrains Mono,monospace', fontSize: 11, color: `${bc}cc` }}>{cert.date}</div>
+                      <div style={{ fontFamily: 'JetBrains Mono,monospace', fontSize: 10, color: '#3a4a5a' }}>ver →</div>
+                    </div>
+                  </div>
+                </div>
+              </div>);
+          })}
+        </Carousel>
           {data.map((cert) => {
             const bc = badgeColors[cert.badge] || A;
             const pdfSrc = cert.pdfUrl || cert.pdfData || "";
@@ -556,7 +638,7 @@ const CertificatesSection = ({ data }) => {
               </div>);
 
           })}
-        </div>
+        </Carousel>
       </div>
       {selected && <CertificateModal cert={selected} onClose={() => setSelected(null)} />}
     </div>);
@@ -609,9 +691,9 @@ const ProjectsSection = ({ data, onExpand }) => {
     <div ref={ref} id="projects" style={{ background: 'rgba(12,16,32,0.6)' }}>
       <div style={sectionStyle(inView, isMobile)}>
         <SectionHeader label="proyectos" title="Proyectos Destacados" />
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(320px,1fr))', gap: 24 }}>
+        <Carousel cardWidth={320}>
           {data.map((proj) =>
-          <div key={proj.id} style={{ background: '#0c1020', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 14, overflow: 'hidden', cursor: 'pointer', transition: 'all 0.25s', display: 'flex', flexDirection: 'column' }}
+          <div key={proj.id} style={{ background: '#0c1020', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 14, overflow: 'hidden', cursor: 'pointer', transition: 'all 0.25s', display: 'flex', flexDirection: 'column', height: '100%' }}
           onMouseEnter={(e) => {e.currentTarget.style.borderColor = `${A}44`;e.currentTarget.style.transform = 'translateY(-5px)';e.currentTarget.style.boxShadow = `0 16px 40px ${A}18`;}}
           onMouseLeave={(e) => {e.currentTarget.style.borderColor = 'rgba(255,255,255,0.06)';e.currentTarget.style.transform = 'none';e.currentTarget.style.boxShadow = 'none';}}
           onClick={() => onExpand(proj)}>
@@ -631,7 +713,7 @@ const ProjectsSection = ({ data, onExpand }) => {
               </div>
             </div>
           )}
-        </div>
+        </Carousel>
       </div>
     </div>);
 
