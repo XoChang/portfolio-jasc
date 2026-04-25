@@ -575,16 +575,17 @@ const CertificatesSection = ({ data }) => {
               onMouseLeave={(e) => {e.currentTarget.style.borderColor = 'rgba(255,255,255,0.06)';e.currentTarget.style.transform = 'none';e.currentTarget.style.boxShadow = 'none';}}
               onClick={() => setSelected(cert)}>
                 {pdfSrc ?
-                <div style={{ height: 160, overflow: 'hidden', position: 'relative', background: '#070c14', flexShrink: 0 }}>
+                  <div style={{ height: 160, overflow: 'hidden', position: 'relative', background: '#070c14', flexShrink: 0 }}>
                     <PDFThumb pdfData={pdfSrc} thumbPage={cert.pdfThumbPage || 0} />
                     <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom,transparent 55%,#0c1020)' }} />
                     <div style={{ position: 'absolute', top: 10, right: 10, background: `${bc}22`, border: `1px solid ${bc}55`, borderRadius: 5, padding: '3px 8px', fontFamily: 'JetBrains Mono,monospace', fontSize: 10, fontWeight: 700, color: bc, backdropFilter: 'blur(4px)' }}>{cert.badge}</div>
-                  </div> :
-                <div style={{ height: 8, background: `linear-gradient(90deg,${bc},${bc}44)`, flexShrink: 0 }} />
+                  </div>
+                :
+                  <div style={{ height: 8, background: `linear-gradient(90deg,${bc},${bc}44)`, flexShrink: 0 }} />
                 }
                 <div style={{ padding: 20, display: 'flex', gap: 14, alignItems: 'flex-start', flex: 1 }}>
                   {!pdfSrc &&
-                  <div style={{ width: 46, height: 46, borderRadius: 10, background: `${bc}18`, border: `1px solid ${bc}44`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontFamily: 'JetBrains Mono,monospace', fontSize: 12, fontWeight: 700, color: bc, boxShadow: `0 0 14px ${bc}22` }}>
+                    <div style={{ width: 46, height: 46, borderRadius: 10, background: `${bc}18`, border: `1px solid ${bc}44`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontFamily: 'JetBrains Mono,monospace', fontSize: 12, fontWeight: 700, color: bc, boxShadow: `0 0 14px ${bc}22` }}>
                       {cert.badge}
                     </div>
                   }
@@ -597,93 +598,17 @@ const CertificatesSection = ({ data }) => {
                     </div>
                   </div>
                 </div>
-              </div>);
-          })}
-        </Carousel>
-          {data.map((cert) => {
-            const bc = badgeColors[cert.badge] || A;
-            const pdfSrc = cert.pdfUrl || cert.pdfData || "";
-            return (
-              <div key={cert.id}
-              style={{ background: '#0c1020', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 12, overflow: 'hidden', transition: 'all 0.25s', cursor: 'pointer', display: 'flex', flexDirection: 'column' }}
-              onMouseEnter={(e) => {e.currentTarget.style.borderColor = `${bc}55`;e.currentTarget.style.transform = 'translateY(-4px)';e.currentTarget.style.boxShadow = `0 12px 36px ${bc}1a`;}}
-              onMouseLeave={(e) => {e.currentTarget.style.borderColor = 'rgba(255,255,255,0.06)';e.currentTarget.style.transform = 'none';e.currentTarget.style.boxShadow = 'none';}}
-              onClick={() => setSelected(cert)}>
-                {/* PDF thumbnail or colored banner */}
-                {pdfSrc ?
-                <div style={{ height: 160, overflow: 'hidden', position: 'relative', background: '#070c14', flexShrink: 0 }}>
-                    <PDFThumb pdfData={pdfSrc} thumbPage={cert.pdfThumbPage || 0} />
-                    <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom,transparent 55%,#0c1020)' }} />
-                    <div style={{ position: 'absolute', top: 10, right: 10, background: `${bc}22`, border: `1px solid ${bc}55`, borderRadius: 5, padding: '3px 8px', fontFamily: 'JetBrains Mono,monospace', fontSize: 10, fontWeight: 700, color: bc, backdropFilter: 'blur(4px)' }}>{cert.badge}</div>
-                  </div> :
-
-                <div style={{ height: 8, background: `linear-gradient(90deg,${bc},${bc}44)`, flexShrink: 0 }} />
-                }
-                {/* Info */}
-                <div style={{ padding: 20, display: 'flex', gap: 14, alignItems: 'flex-start', flex: 1 }}>
-                  {!pdfSrc &&
-                  <div style={{ width: 46, height: 46, borderRadius: 10, background: `${bc}18`, border: `1px solid ${bc}44`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontFamily: 'JetBrains Mono,monospace', fontSize: 12, fontWeight: 700, color: bc, boxShadow: `0 0 14px ${bc}22` }}>
-                      {cert.badge}
-                    </div>
-                  }
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontFamily: 'Space Grotesk,sans-serif', fontWeight: 600, fontSize: 15, color: '#e2eaf4', lineHeight: 1.3, marginBottom: 5 }}>{cert.title}</div>
-                    <div style={{ fontFamily: 'Inter,sans-serif', fontSize: 13, color: '#5a6a80', marginBottom: 6 }}>{cert.issuer}</div>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                      <div style={{ fontFamily: 'JetBrains Mono,monospace', fontSize: 11, color: `${bc}cc` }}>{cert.date}</div>
-                      <div style={{ fontFamily: 'JetBrains Mono,monospace', fontSize: 10, color: '#3a4a5a' }}>ver →</div>
-                    </div>
-                  </div>
-                </div>
-              </div>);
-
+              </div>
+            );
           })}
         </Carousel>
       </div>
       {selected && <CertificateModal cert={selected} onClose={() => setSelected(null)} />}
-    </div>);
-
+    </div>
+  );
 };
 
-// ── Project Modal ─────────────────────────────────────────────────────────────
-const ProjectModal = ({ project, onClose }) => {
-  useEffect(() => {
-    const fn = (e) => {if (e.key === 'Escape') onClose();};
-    window.addEventListener('keydown', fn);
-    document.body.style.overflow = 'hidden';
-    return () => {window.removeEventListener('keydown', fn);document.body.style.overflow = '';};
-  }, []);
-  return (
-    <div style={{ position: 'fixed', inset: 0, zIndex: 500, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(8px)', animation: 'fadeIn 0.25s ease' }}
-    onClick={(e) => {if (e.target === e.currentTarget) onClose();}}>
-      <div style={{ width: '80vw', maxWidth: 900, maxHeight: '85vh', background: '#0c1020', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 16, overflow: 'hidden', display: 'flex', flexDirection: 'column', animation: 'slideUp 0.3s ease', boxShadow: `0 0 80px ${A}22` }}>
-        <div style={{ height: 240, overflow: 'hidden', flexShrink: 0, position: 'relative' }}>
-          {project.image ?
-          <img src={project.image} alt={project.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> :
-          <ProjectPlaceholder project={project} />
-          }
-          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom,transparent 60%,#0c1020)' }} />
-          <button onClick={onClose} style={{ position: 'absolute', top: 16, right: 16, width: 36, height: 36, borderRadius: '50%', background: 'rgba(0,0,0,0.6)', border: '1px solid rgba(255,255,255,0.1)', color: '#e2eaf4', fontSize: 18, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(4px)' }}>×</button>
-        </div>
-        <div style={{ padding: 36, overflow: 'auto', flex: 1 }}>
-          <h3 style={{ fontFamily: 'Space Grotesk,sans-serif', fontSize: 28, fontWeight: 700, color: '#e2eaf4', margin: '0 0 12px' }}>{project.title}</h3>
-          <p style={{ fontFamily: 'Inter,sans-serif', fontSize: 16, color: '#8b9ab0', lineHeight: 1.75, margin: '0 0 24px' }}>{project.description}</p>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 28 }}>
-            {project.tags.map((t) =>
-            <span key={t} style={{ fontFamily: 'JetBrains Mono,monospace', fontSize: 13, color: A, background: `${A}15`, border: `1px solid ${A}30`, borderRadius: 4, padding: '5px 12px' }}>{t}</span>
-            )}
-          </div>
-          <div style={{ display: 'flex', gap: 12 }}>
-            {project.github && <a href={project.github} target="_blank" rel="noreferrer" style={{ fontFamily: 'Space Grotesk,sans-serif', fontWeight: 600, fontSize: 14, color: '#e2eaf4', background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 6, padding: '10px 20px', textDecoration: 'none', transition: 'all 0.2s' }} onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.12)'} onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.07)'}>GitHub →</a>}
-            {project.url && <a href={project.url} target="_blank" rel="noreferrer" style={{ fontFamily: 'Space Grotesk,sans-serif', fontWeight: 600, fontSize: 14, color: '#060912', background: A, borderRadius: 6, padding: '10px 20px', textDecoration: 'none', transition: 'all 0.2s', boxShadow: `0 0 16px ${A}44` }} onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-1px)'} onMouseLeave={(e) => e.currentTarget.style.transform = 'none'}>Ver Demo →</a>}
-          </div>
-        </div>
-      </div>
-    </div>);
 
-};
-
-// ── Projects ──────────────────────────────────────────────────────────────────
 const ProjectsSection = ({ data, onExpand }) => {
   const [ref, inView] = useInView();
   const isMobile = useWindowWidth() < 768;
