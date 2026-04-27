@@ -692,7 +692,7 @@ const ServicesSection = () => {
     { icon: '🔒', title: 'Ciberseguridad', desc: 'Auditorías de seguridad, pentesting de aplicaciones web, análisis de vulnerabilidades y hardening de sistemas.', tags: ['Pentesting', 'OWASP', 'Burp Suite'] },
     { icon: '⚙️', title: 'Backend & APIs', desc: 'Diseño e implementación de APIs RESTful y microservicios escalables con buenas prácticas de arquitectura.', tags: ['Python', 'FastAPI', 'Docker'] },
     { icon: '📊', title: 'Machine Learning', desc: 'Entrenamiento, evaluación y despliegue de modelos de ML/DL para clasificación, NLP y análisis de datos.', tags: ['TensorFlow', 'PyTorch', 'Scikit-learn'] },
-    { icon: '☁️', title: 'Cloud & DevOps', desc: 'Configuración de infraestructura en AWS, pipelines CI/CD, contenedores y orquestación con Kubernetes.', tags: ['AWS', 'Kubernetes', 'CI/CD'] },
+    { icon: '🌐', title: 'Desarrollo Web', desc: 'Creación de sitios y aplicaciones web modernas, responsivas y de alto rendimiento con React y tecnologías actuales.', tags: ['React', 'HTML/CSS', 'TypeScript'] },
     { icon: '🧠', title: 'Consultoría Técnica', desc: 'Asesoría en arquitectura de software, revisión de código, selección de stack tecnológico y buenas prácticas.', tags: ['Arquitectura', 'Code Review', 'Tech Stack'] },
   ];
   return (
