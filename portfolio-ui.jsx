@@ -511,41 +511,92 @@ const CertificateModal = ({ cert, onClose }) => {
 // ── Carousel ──────────────────────────────────────────────────────────────────
 const Carousel = ({ children, cardWidth = 300 }) => {
   const trackRef = useRef(null);
+  const wrapRef = useRef(null);
   const [idx, setIdx] = useState(0);
+  const [wrapWidth, setWrapWidth] = useState(900);
+  const touchStart = useRef(null);
+  const gap = 20;
   const count = React.Children.count(children);
-  const visible = Math.max(1, Math.floor((typeof window !== 'undefined' ? window.innerWidth * 0.85 : 900) / (cardWidth + 20)));
+  const visible = Math.max(1, Math.floor(wrapWidth / (cardWidth + gap)));
   const max = Math.max(0, count - visible);
-  const prev = () => setIdx(i => Math.max(0, i - 1));
-  const next = () => setIdx(i => Math.min(max, i + 1));
+
+  useEffect(() => {
+    const obs = new ResizeObserver(entries => {
+      setWrapWidth(entries[0].contentRect.width);
+    });
+    if (wrapRef.current) obs.observe(wrapRef.current);
+    return () => obs.disconnect();
+  }, []);
+
+  useEffect(() => {
+    setIdx(i => Math.min(i, Math.max(0, count - visible)));
+  }, [visible, count]);
+
   useEffect(() => {
     if (trackRef.current) {
-      trackRef.current.style.transform = `translateX(-${idx * (cardWidth + 20)}px)`;
+      trackRef.current.style.transform = `translateX(-${idx * (cardWidth + gap)}px)`;
     }
   }, [idx, cardWidth]);
+
+  const prev = () => setIdx(i => Math.max(0, i - 1));
+  const next = () => setIdx(i => Math.min(max, i + 1));
+
+  // Touch swipe
+  const onTouchStart = (e) => { touchStart.current = e.touches[0].clientX; };
+  const onTouchEnd = (e) => {
+    if (touchStart.current === null) return;
+    const diff = touchStart.current - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 40) diff > 0 ? next() : prev();
+    touchStart.current = null;
+  };
+
+  // Mouse drag
+  const dragStart = useRef(null);
+  const isDragging = useRef(false);
+  const onMouseDown = (e) => { dragStart.current = e.clientX; isDragging.current = false; };
+  const onMouseMove = (e) => { if (dragStart.current !== null && Math.abs(e.clientX - dragStart.current) > 5) isDragging.current = true; };
+  const onMouseUp = (e) => {
+    if (dragStart.current === null) return;
+    const diff = dragStart.current - e.clientX;
+    if (Math.abs(diff) > 40) diff > 0 ? next() : prev();
+    dragStart.current = null;
+  };
+
+  // Mouse wheel horizontal scroll
+  const onWheel = (e) => {
+    if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
+      e.preventDefault();
+      if (e.deltaX > 30) next();
+      else if (e.deltaX < -30) prev();
+    }
+  };
+
+  const isMob = wrapWidth < 500;
+
   return (
-    <div style={{ position: 'relative' }}>
-      {/* Arrows */}
+    <div ref={wrapRef} style={{ position: 'relative' }}>
       {idx > 0 && (
-        <button onClick={prev} style={{ position:'absolute',left:-20,top:'50%',transform:'translateY(-50%)',zIndex:10,width:40,height:40,borderRadius:'50%',background:'#0c1020',border:`1px solid rgba(255,255,255,0.12)`,color:'#e2eaf4',fontSize:18,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',boxShadow:'0 4px 20px rgba(0,0,0,0.4)',transition:'all 0.2s' }}
-          onMouseEnter={e=>{e.currentTarget.style.borderColor=`${A}88`;e.currentTarget.style.color=A;}}
-          onMouseLeave={e=>{e.currentTarget.style.borderColor='rgba(255,255,255,0.12)';e.currentTarget.style.color='#e2eaf4';}}>‹</button>
+        <button onClick={prev} style={{ position:'absolute', left: isMob ? 4 : -20, top: isMob ? 10 : '45%', transform: isMob ? 'none' : 'translateY(-50%)', zIndex:10, width:36, height:36, borderRadius:'50%', background: isMob ? 'rgba(6,9,18,0.85)' : '#0c1020', border:'1px solid rgba(255,255,255,0.12)', color:'#e2eaf4', fontSize:18, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'0 4px 20px rgba(0,0,0,0.5)', backdropFilter:'blur(4px)', transition:'all 0.2s' }}
+          onMouseEnter={e=>{e.currentTarget.style.borderColor=A+'88';e.currentTarget.style.color=A;}}
+          onMouseLeave={e=>{e.currentTarget.style.borderColor='rgba(255,255,255,0.12)';e.currentTarget.style.color='#e2eaf4';}}>&#8249;</button>
       )}
       {idx < max && (
-        <button onClick={next} style={{ position:'absolute',right:-20,top:'50%',transform:'translateY(-50%)',zIndex:10,width:40,height:40,borderRadius:'50%',background:'#0c1020',border:`1px solid rgba(255,255,255,0.12)`,color:'#e2eaf4',fontSize:18,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',boxShadow:'0 4px 20px rgba(0,0,0,0.4)',transition:'all 0.2s' }}
-          onMouseEnter={e=>{e.currentTarget.style.borderColor=`${A}88`;e.currentTarget.style.color=A;}}
-          onMouseLeave={e=>{e.currentTarget.style.borderColor='rgba(255,255,255,0.12)';e.currentTarget.style.color='#e2eaf4';}}>›</button>
+        <button onClick={next} style={{ position:'absolute', right: isMob ? 4 : -20, top: isMob ? 10 : '45%', transform: isMob ? 'none' : 'translateY(-50%)', zIndex:10, width:36, height:36, borderRadius:'50%', background: isMob ? 'rgba(6,9,18,0.85)' : '#0c1020', border:'1px solid rgba(255,255,255,0.12)', color:'#e2eaf4', fontSize:18, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'0 4px 20px rgba(0,0,0,0.5)', backdropFilter:'blur(4px)', transition:'all 0.2s' }}
+          onMouseEnter={e=>{e.currentTarget.style.borderColor=A+'88';e.currentTarget.style.color=A;}}
+          onMouseLeave={e=>{e.currentTarget.style.borderColor='rgba(255,255,255,0.12)';e.currentTarget.style.color='#e2eaf4';}}>&#8250;</button>
       )}
-      {/* Track */}
-      <div style={{ overflow:'hidden', padding:'8px 4px 16px' }}>
-        <div ref={trackRef} style={{ display:'flex', gap:20, transition:'transform 0.4s cubic-bezier(0.25,0.46,0.45,0.94)', willChange:'transform' }}>
+      <div style={{ overflow:'hidden', padding:'8px 4px 24px', cursor: isDragging.current ? 'grabbing' : 'grab' }}
+        onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}
+        onMouseDown={onMouseDown} onMouseMove={onMouseMove} onMouseUp={onMouseUp} onMouseLeave={onMouseUp}
+        onWheel={onWheel}>
+        <div ref={trackRef} style={{ display:'flex', gap, transition:'transform 0.4s cubic-bezier(0.25,0.46,0.45,0.94)', willChange:'transform', userSelect:'none' }}>
           {React.Children.map(children, child => (
             <div style={{ minWidth:cardWidth, maxWidth:cardWidth, flexShrink:0 }}>{child}</div>
           ))}
         </div>
       </div>
-      {/* Dots */}
-      {count > visible && (
-        <div style={{ display:'flex', justifyContent:'center', gap:6, marginTop:4 }}>
+      {max > 0 && (
+        <div style={{ display:'flex', justifyContent:'center', flexWrap:'wrap', gap:6, marginTop:4 }}>
           {Array.from({ length: max + 1 }).map((_, i) => (
             <div key={i} onClick={() => setIdx(i)} style={{ width: i===idx ? 20 : 6, height:6, borderRadius:3, background: i===idx ? A : 'rgba(255,255,255,0.15)', cursor:'pointer', transition:'all 0.3s' }} />
           ))}
@@ -639,7 +690,6 @@ const ProjectModal = ({ project, onClose }) => {
             )}
           </div>
           <div style={{ display: 'flex', gap: 12 }}>
-            {project.github && <a href={project.github} target="_blank" rel="noreferrer" style={{ fontFamily: 'Space Grotesk,sans-serif', fontWeight: 600, fontSize: 14, color: '#e2eaf4', background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 6, padding: '10px 20px', textDecoration: 'none', transition: 'all 0.2s' }}>GitHub →</a>}
             {project.url && <a href={project.url} target="_blank" rel="noreferrer" style={{ fontFamily: 'Space Grotesk,sans-serif', fontWeight: 600, fontSize: 14, color: '#060912', background: A, borderRadius: 6, padding: '10px 20px', textDecoration: 'none', transition: 'all 0.2s', boxShadow: `0 0 16px ${A}44` }}>Ver Demo →</a>}
           </div>
         </div>
