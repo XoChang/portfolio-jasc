@@ -91,9 +91,7 @@ const Nav = ({ name }) => {
               <a key={id} href={`#${id}`} style={{ fontFamily:'Inter,sans-serif',fontSize:14,color:'#6b7a95',textDecoration:'none',transition:'color 0.2s' }}
                 onMouseEnter={e => e.target.style.color='#e2eaf4'} onMouseLeave={e => e.target.style.color='#6b7a95'}>{label}</a>
             ))}
-            <button onClick=
-              onMouseEnter={e => { e.currentTarget.style.background=`${A}28`; e.currentTarget.style.borderColor=`${A}88`; }}
-              onMouseLeave={e => { e.currentTarget.style.background=`${A}18`; e.currentTarget.style.borderColor=`${A}44`; }}>$ admin</button>
+
           </div>
         )}
       </nav>
