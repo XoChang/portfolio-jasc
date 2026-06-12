@@ -66,7 +66,7 @@ const ProjectPlaceholder = ({ project }) => {
 };
 
 // ── Nav ────────────────────────────────────────────────────────────────────
-const Nav = ({ name, onAdmin }) => {
+const Nav = ({ name }) => {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const isMobile = useWindowWidth() < 768;
@@ -91,7 +91,7 @@ const Nav = ({ name, onAdmin }) => {
               <a key={id} href={`#${id}`} style={{ fontFamily:'Inter,sans-serif',fontSize:14,color:'#6b7a95',textDecoration:'none',transition:'color 0.2s' }}
                 onMouseEnter={e => e.target.style.color='#e2eaf4'} onMouseLeave={e => e.target.style.color='#6b7a95'}>{label}</a>
             ))}
-            <button onClick={onAdmin} style={{ fontFamily:'JetBrains Mono,monospace',fontSize:12,color:A,background:`${A}18`,border:`1px solid ${A}44`,borderRadius:4,padding:'6px 16px',cursor:'pointer',transition:'all 0.2s' }}
+            <button onClick=
               onMouseEnter={e => { e.currentTarget.style.background=`${A}28`; e.currentTarget.style.borderColor=`${A}88`; }}
               onMouseLeave={e => { e.currentTarget.style.background=`${A}18`; e.currentTarget.style.borderColor=`${A}44`; }}>$ admin</button>
           </div>
@@ -103,7 +103,7 @@ const Nav = ({ name, onAdmin }) => {
             <a key={id} href={`#${id}`} onClick={() => setMenuOpen(false)}
               style={{ fontFamily:'Inter,sans-serif',fontSize:16,color:'#9aaccb',textDecoration:'none',padding:'10px 0',borderBottom:'1px solid rgba(255,255,255,0.04)' }}>{label}</a>
           ))}
-          <button onClick={() => { setMenuOpen(false); onAdmin(); }} style={{ fontFamily:'JetBrains Mono,monospace',fontSize:13,color:A,background:`${A}15`,border:`1px solid ${A}40`,borderRadius:6,padding:'10px',cursor:'pointer',marginTop:8 }}>$ admin</button>
+          <button onClick=
         </div>
       )}
     </>

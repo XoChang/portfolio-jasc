@@ -427,32 +427,28 @@ const TabSecurity = ({ data, onChange }) => {
 };
 
 // ── Tab: Supabase Config ──────────────────────────────────────────────────────
-const TabSupabase = () => {
-  const configured = window.SUPABASE_URL !== 'https://TU_PROYECTO.supabase.co';
+const TabFirebase = () => {
+  const configured = true; // Firebase siempre configurado (credenciales en portfolio-data.js)
   return (
     <div>
-      <div style={{ padding:20,background: configured ? 'rgba(34,197,94,0.06)' : 'rgba(255,77,109,0.06)',border:`1px solid ${configured ? 'rgba(34,197,94,0.2)' : `${A}22`}`,borderRadius:10,marginBottom:20 }}>
-        <div style={{ fontFamily:'JetBrains Mono,monospace',fontSize:11,color: configured ? '#22c55e' : A,letterSpacing:'0.1em',marginBottom:6 }}>
-          {configured ? '✓ SUPABASE CONECTADO' : '⚠ SUPABASE NO CONFIGURADO'}
+      <div style={{ padding:20,background:'rgba(255,167,38,0.06)',border:'1px solid rgba(255,167,38,0.2)',borderRadius:10,marginBottom:20 }}>
+        <div style={{ fontFamily:'JetBrains Mono,monospace',fontSize:11,color:'#ffa726',letterSpacing:'0.1em',marginBottom:6 }}>
+          ✓ FIREBASE CONECTADO
         </div>
         <div style={{ fontFamily:'Inter,sans-serif',fontSize:13,color:'#6b7a95' }}>
-          {configured
-            ? 'Los datos y archivos se guardan en la nube. Todos los visitantes ven los mismos datos.'
-            : 'Los datos se guardan en localStorage (solo tú los ves). Configura Supabase en portfolio-data.js para activar la nube.'}
+          Los datos y archivos se guardan en Firebase. Sin auto-suspend, siempre disponible.
         </div>
       </div>
-
-      <div style={{ fontFamily:'JetBrains Mono,monospace',fontSize:11,color:'#5a6a80',letterSpacing:'0.1em',marginBottom:16 }}>// PASOS PARA CONFIGURAR</div>
-
+      <div style={{ fontFamily:'JetBrains Mono,monospace',fontSize:11,color:'#5a6a80',letterSpacing:'0.1em',marginBottom:16 }}>// ACCESO AL PANEL ADMIN</div>
       {[
-        { n:1, t:'Crear proyecto en Supabase', d:'Ve a supabase.com → New Project → anota la URL y la anon key.' },
-        { n:2, t:'Editar portfolio-data.js', d:'Reemplaza SUPABASE_URL y SUPABASE_ANON_KEY con tus valores reales.' },
-        { n:3, t:'Crear tabla en Supabase', d:'En el SQL Editor de Supabase, ejecuta el SQL del archivo SUPABASE_SETUP.sql incluido.' },
-        { n:4, t:'Crear storage buckets', d:'En Storage, crea un bucket llamado "portfolio-files" y ponlo en modo público.' },
-        { n:5, t:'Publicar', d:'Sube todos los archivos a Netlify y listo. Las imágenes y PDFs se guardarán en Supabase.' },
+        { n:1, t:'URL secreta', d:'Ve a tuportfolio.netlify.app/#admin para abrir el panel.' },
+        { n:2, t:'Sin botón visible', d:'El botón de admin ya no aparece en el portfolio. Solo tú conoces la URL.' },
+        { n:3, t:'Firestore', d:'Los datos se guardan en Firebase Firestore → colección "portfolio" → documento "data".' },
+        { n:4, t:'Storage', d:'Las imágenes y PDFs se suben a Firebase Storage → carpeta "uploads/".' },
+        { n:5, t:'Reglas', d:'Configura las reglas de Firestore y Storage en Firebase Console para producción.' },
       ].map(step => (
         <div key={step.n} style={{ display:'flex',gap:14,marginBottom:16 }}>
-          <div style={{ width:28,height:28,borderRadius:'50%',background:`${A}20`,border:`1px solid ${A}50`,display:'flex',alignItems:'center',justifyContent:'center',fontFamily:'JetBrains Mono,monospace',fontSize:12,color:A,flexShrink:0 }}>{step.n}</div>
+          <div style={{ width:28,height:28,borderRadius:'50%',background:'rgba(255,167,38,0.15)',border:'1px solid rgba(255,167,38,0.4)',display:'flex',alignItems:'center',justifyContent:'center',fontFamily:'JetBrains Mono,monospace',fontSize:12,color:'#ffa726',flexShrink:0 }}>{step.n}</div>
           <div>
             <div style={{ fontFamily:'Space Grotesk,sans-serif',fontWeight:600,fontSize:14,color:'#e2eaf4',marginBottom:3 }}>{step.t}</div>
             <div style={{ fontFamily:'Inter,sans-serif',fontSize:13,color:'#6b7a95' }}>{step.d}</div>
@@ -463,7 +459,7 @@ const TabSupabase = () => {
   );
 };
 
-// ── Admin Panel ───────────────────────────────────────────────────────────────
+
 const AdminPanel = ({ data, onUpdate, onClose }) => {
   const [auth, setAuth] = useState(false);
   const [pw, setPw] = useState('');
@@ -495,7 +491,7 @@ const AdminPanel = ({ data, onUpdate, onClose }) => {
     ['perfil','Perfil'], ['about','Sobre mí'], ['skills','Skills'],
     ['education','Educación'], ['languages','Idiomas'], ['experience','Experiencia'],
     ['certificates','Certificados'], ['projects','Proyectos'],
-    ['contact','Contacto'], ['security','Seguridad'], ['supabase','☁ Supabase']
+    ['contact','Contacto'], ['security','Seguridad'], ['firebase','🔥 Firebase']
   ];
 
   const content = () => {
@@ -509,7 +505,7 @@ const AdminPanel = ({ data, onUpdate, onClose }) => {
     if (tab==='projects') return <TabProjects data={local} onChange={update}/>;
     if (tab==='contact') return <TabContact data={local} onChange={update}/>;
     if (tab==='security') return <TabSecurity data={local} onChange={update}/>;
-    if (tab==='supabase') return <TabSupabase/>;
+    if (tab==='firebase') return <TabFirebase/>;
   };
 
   if (!auth) return (
