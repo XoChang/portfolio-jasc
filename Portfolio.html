@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Jesus Angel Saenz Chang — Portfolio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet"/>
+
+  <!-- Firebase compat SDKs (always-on, no auto-suspend) -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
+  <script>
+    // Expose firebase compat globally for portfolio-data.js
+    window.firebase_compat = firebase;
+  </script>
+
+  <!-- React -->
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+  <!-- PDF.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script>
+    if (window.pdfjsLib) {
+      pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    }
+  </script>
+
+  <!-- Data & config (carga Supabase config + helpers) -->
+  <script src="portfolio-data.js"></script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: #060912;
+      color: #e2eaf4;
+      font-family: 'Inter', sans-serif;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #060912; }
+    ::-webkit-scrollbar-thumb { background: #1e2a3a; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #2e3e52; }
+
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(34,197,94,0.4); }
+      50%       { box-shadow: 0 0 0 6px rgba(34,197,94,0); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(24px) scale(0.98); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    #about > div, #skills > div, #experience > div,
+    #certificates > div, #projects > div, #contact > div {
+      max-width: 1200px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    #hero-scanline {
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(
+        0deg, transparent, transparent 3px,
+        rgba(0,0,0,0.04) 3px, rgba(0,0,0,0.04) 4px
+      );
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    a { color: inherit; }
+
+    /* Loading screen */
+    #loading-screen {
+      position: fixed;
+      inset: 0;
+      background: #060912;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      transition: opacity 0.4s ease;
+    }
+    #loading-screen.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+    .loader-ring {
+      width: 40px;
+      height: 40px;
+      border: 2px solid rgba(255,77,109,0.2);
+      border-top-color: #ff4d6d;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin-bottom: 16px;
+    }
+    .loader-text {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: #3a4a5a;
+      letter-spacing: 0.15em;
+    }
+
+    @media (max-width: 767px) {
+      .admin-sidebar { width: 160px !important; }
+    }
+    @media (max-width: 480px) {
+      #certificates > div > div,
+      #projects > div > div { grid-template-columns: 1fr !important; }
+    }
+
+    input[type=range] {
+      -webkit-appearance: none;
+      appearance: none;
+      height: 4px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 2px;
+      outline: none;
+      cursor: pointer;
+    }
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #ff4d6d;
+      cursor: pointer;
+      box-shadow: 0 0 8px rgba(255,77,109,0.6);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Loading screen -->
+  <div id="loading-screen">
+    <div class="loader-ring"></div>
+    <div class="loader-text">Cargando portfolio...</div>
+  </div>
+
+  <div id="root"></div>
+
+  <script type="text/babel" src="portfolio-ui.jsx"></script>
+  <script type="text/babel" src="portfolio-admin.jsx"></script>
+
+  <script type="text/babel">
+    const { useState, useEffect } = React;
+
+    const App = () => {
+      const [data, setData] = useState(null);
+      const [adminOpen, setAdminOpen] = useState(false);
+      const [modal, setModal] = useState(null);
+
+      useEffect(() => {
+        window.loadData().then(loaded => {
+          setData(loaded);
+          const screen = document.getElementById('loading-screen');
+          if (screen) screen.classList.add('hidden');
+          setTimeout(() => { if (screen) screen.remove(); }, 500);
+        });
+      }, []);
+
+      // URL secreta: tuportfolio.com/#admin
+      useEffect(() => {
+        const checkHash = () => {
+          if (window.location.hash === '#admin') {
+            setAdminOpen(true);
+            window.history.replaceState(null, '', window.location.pathname);
+          }
+        };
+        checkHash();
+        window.addEventListener('hashchange', checkHash);
+        return () => window.removeEventListener('hashchange', checkHash);
+      }, []);
+
+      const updateData = (newData) => { setData({ ...newData }); };
+
+      if (!data) return null;
+
+      return (
+        <>
+          <Nav name={data.hero.name} />
+
+          <section id="hero" style={{ position: 'relative' }}>
+            <div id="hero-scanline"></div>
+            <HeroSection data={data.hero} />
+          </section>
+
+          <AboutSection data={data.about} />
+          <TechSection skills={data.skills} education={data.education} languages={data.languages} />
+          <ExperienceSection data={data.experience} />
+          <CertificatesSection data={data.certificates} />
+          <ProjectsSection data={data.projects} onExpand={setModal} />
+          <ServicesSection />
+          <ContactSection data={data.contact} />
+
+          {modal && (
+            <ProjectModal project={modal} onClose={() => setModal(null)} />
+          )}
+          {adminOpen && (
+            <AdminPanel
+              data={data}
+              onUpdate={updateData}
+              onClose={() => {
+                setAdminOpen(false);
+                window.history.replaceState(null, '', window.location.pathname);
+              }}
+            />
+          )}
+        </>
+      );
+    };
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>
