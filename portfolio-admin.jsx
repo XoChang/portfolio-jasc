@@ -261,9 +261,13 @@ const PDFPagePicker = ({ pdfData, selectedPage, onChange }) => {
     if (!pdfData || !window.pdfjsLib) return;
     let cancelled = false;
     setLoading(true);
+    let blobUrl = null;
     (async () => {
       try {
-        const pdf = await pdfjsLib.getDocument(pdfData).promise;
+        // Fetch as blob to handle Firebase Storage CORS
+        const src = pdfData.startsWith('data:') ? pdfData : await fetch(pdfData).then(r => r.blob()).then(b => { blobUrl = URL.createObjectURL(b); return blobUrl; });
+        if (cancelled) return;
+        const pdf = await pdfjsLib.getDocument(src).promise;
         if (cancelled) return;
         const thumbs = [];
         for (let i = 1; i <= pdf.numPages; i++) {
@@ -279,7 +283,7 @@ const PDFPagePicker = ({ pdfData, selectedPage, onChange }) => {
         if (!cancelled) { setPages(thumbs); setLoading(false); }
       } catch(e) { if (!cancelled) setLoading(false); }
     })();
-    return () => { cancelled = true; };
+    return () => { cancelled = true; if (blobUrl) URL.revokeObjectURL(blobUrl); };
   }, [pdfData]);
   if (loading) return <div style={{ fontFamily:'JetBrains Mono,monospace',fontSize:11,color:'#3a4a5a',padding:'8px 0' }}>Cargando páginas...</div>;
   if (pages.length <= 1) return null;
