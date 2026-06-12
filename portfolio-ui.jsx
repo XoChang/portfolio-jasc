@@ -297,16 +297,33 @@ const ExperienceSection = ({ data }) => {
 };
 
 // ── PDF Thumbnail ─────────────────────────────────────────────────────────────
+// Convert Firebase Storage URL to blob to bypass CORS for PDF.js
+const _loadPdfSource = async (url) => {
+  if (!url) return null;
+  if (url.startsWith('data:')) return url;
+  try {
+    const resp = await fetch(url);
+    const blob = await resp.blob();
+    return URL.createObjectURL(blob);
+  } catch {
+    return url; // fallback to direct url
+  }
+};
+
 const PDFThumb = ({ pdfData, thumbPage = 0 }) => {
   const canvasRef = useRef(null);
   const [ready, setReady] = useState(false);
   useEffect(() => {
     if (!pdfData || !window.pdfjsLib) return;
     let cancelled = false;
+    let blobUrl = null;
     setReady(false);
     (async () => {
       try {
-        const pdf = await pdfjsLib.getDocument(pdfData).promise;
+        const src = await _loadPdfSource(pdfData);
+        blobUrl = src;
+        if (cancelled) return;
+        const pdf = await pdfjsLib.getDocument(src).promise;
         const pageNum = Math.min(thumbPage + 1, pdf.numPages);
         const page = await pdf.getPage(pageNum);
         if (cancelled) return;
@@ -322,7 +339,7 @@ const PDFThumb = ({ pdfData, thumbPage = 0 }) => {
         if (!cancelled) setReady(true);
       } catch (e) {}
     })();
-    return () => {cancelled = true;};
+    return () => {cancelled = true; if (blobUrl && blobUrl.startsWith('blob:')) URL.revokeObjectURL(blobUrl);};
   }, [pdfData, thumbPage]);
   return (
     <div style={{ width: '100%', minHeight: 120, background: '#070c14', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -346,9 +363,13 @@ const PDFViewer = ({ pdfData, initialPage = 0 }) => {
     let cancelled = false;
     setLoading(true);
     setPages([]);
+    let blobUrl = null;
     (async () => {
       try {
-        const pdf = await pdfjsLib.getDocument(pdfData).promise;
+        const src = await _loadPdfSource(pdfData);
+        blobUrl = src;
+        if (cancelled) return;
+        const pdf = await pdfjsLib.getDocument(src).promise;
         if (cancelled) return;
         const imgs = [];
         for (let i = 1; i <= pdf.numPages; i++) {
@@ -366,7 +387,7 @@ const PDFViewer = ({ pdfData, initialPage = 0 }) => {
         if (!cancelled) {setError(true);setLoading(false);}
       }
     })();
-    return () => {cancelled = true;};
+    return () => {cancelled = true; if (blobUrl && blobUrl.startsWith('blob:')) URL.revokeObjectURL(blobUrl);};
   }, [pdfData]);
 
   useEffect(() => {
